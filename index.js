@@ -46,12 +46,13 @@ function fetchCityCoords(search) {
 }
 //this is a function that adds the city to the history
 function addCityToHistory(search) {
+  //if the history is not equal it will remove one and returns false and no match is found it will be none
   if (searchHistory.indexOf(search) !== -1) {
     return;
   }
   //searches the history then the search is pushed.
   searchHistory.push(search);
-  //this returns the search history into json format
+  //localStorage returns the data as a string. then parse the data to convert it into a object (json)
   localStorage.setItem("search-history", JSON.stringify(searchHistory));
   renderSearchHistory();
 }
@@ -64,7 +65,7 @@ function appendHistory() {
   }
   renderSearchHistory();
 }
-//show the search history in the broswer
+//shows the search history in the broswer
 function renderSearchHistory() {
   searchHistoryContainer.innerHTML = "";
 
@@ -101,12 +102,12 @@ function fetchWeatherData(data) {
       console.log(err);
     });
 }
-//shows the city and data
+//calling two functions and passing the information for html to read it
 function renderItems(city, data) {
   renderCurrentWeather(city, data.current, data.timezone);
   renderForecast(data.daily, data.timezone);
 }
-//shows the current weather
+//calling two functions and passing the information for html to read it
 function renderCurrentWeather(a, b, c) {
   var date = dayjs().tz(c).format("M/D/YYYY");
 
@@ -155,7 +156,7 @@ function renderCurrentWeather(a, b, c) {
   todayContainer.innerHTML = "";
   todayContainer.append(card);
 }
-//shows the forecast 
+//calling two functions and passing the information for html to read it
 function renderForecast(dailyForcast, timezone) {
   // create the timestamps to start the 5 day forecast and end the 5 day forecast. daily[0].dt = the unix time code we need to convert
   var startDt = dayjs().tz(timezone).add(1, "day").startOf("day").unix();

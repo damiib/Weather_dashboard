@@ -7,52 +7,64 @@ var searchInput = document.querySelector("#searchInput");
 var todayContainer = document.querySelector("#today");
 var forecastContainer = document.querySelector("#forecast");
 
+//this activates the plugins for dayjs
 dayjs.extend(window.dayjs_plugin_utc);
 dayjs.extend(window.dayjs_plugin_timezone);
 
 function handleFormSubmit(e) {
+  // this prevents the page from reverting to it's orginal state after being clicked
   e.preventDefault();
+  //after you put the search in give me the value and take out white space.
   var search = searchInput.value.trim();
 
+//its starting the function and passing the value that was in the input
   fetchCityCoords(search);
+  //this resets the imput
   searchInput.value = "";
 }
 
+//created another function to fetch the api data
 function fetchCityCoords(search) {
   fetch(
     `https://api.openweathermap.org/data/2.5/weather?q=${search}&appid=${weatherApiKey}`
   )
     .then(function (res) {
+      //taking the data and returning it in a json format
       return res.json();
     })
     .then(function (data) {
+      // if no data is returned, then no city is found
       if (!data) {
         alert("city not found");
       } else {
+
         addCityToHistory(search);
         fetchWeatherData(data);
         // console.log(data)
       }
     });
 }
-
+//this is a function that adds the city to the history
 function addCityToHistory(search) {
-  if(searchHistory.indexOf(search) !== -1){
-    return
+  if (searchHistory.indexOf(search) !== -1) {
+    return;
   }
+  //searches the history then the search is pushed.
   searchHistory.push(search);
+  //this returns the search history into json format
   localStorage.setItem("search-history", JSON.stringify(searchHistory));
   renderSearchHistory();
 }
-
+//this function puts the history to the end of pre existing content
 function appendHistory() {
   var storedHistory = localStorage.getItem("search-history");
+  // the history is stored and then json is added 
   if (storedHistory) {
     searchHistory = JSON.parse(storedHistory);
   }
   renderSearchHistory();
 }
-
+//show the search history in the broswer
 function renderSearchHistory() {
   searchHistoryContainer.innerHTML = "";
 
@@ -69,7 +81,7 @@ function renderSearchHistory() {
     searchHistoryContainer.append(btn);
   }
 }
-
+//get the weather data
 function fetchWeatherData(data) {
   var { lat } = data.coord;
   var { lon } = data.coord;
@@ -89,12 +101,12 @@ function fetchWeatherData(data) {
       console.log(err);
     });
 }
-
+//shows the city and data
 function renderItems(city, data) {
   renderCurrentWeather(city, data.current, data.timezone);
   renderForecast(data.daily, data.timezone);
 }
-
+//shows the current weather
 function renderCurrentWeather(a, b, c) {
   var date = dayjs().tz(c).format("M/D/YYYY");
 
@@ -143,7 +155,7 @@ function renderCurrentWeather(a, b, c) {
   todayContainer.innerHTML = "";
   todayContainer.append(card);
 }
-
+//shows the forecast 
 function renderForecast(dailyForcast, timezone) {
   // create the timestamps to start the 5 day forecast and end the 5 day forecast. daily[0].dt = the unix time code we need to convert
   var startDt = dayjs().tz(timezone).add(1, "day").startOf("day").unix();
@@ -167,7 +179,7 @@ function renderForecast(dailyForcast, timezone) {
     }
   }
 }
-
+//shows the forcast card
 function renderForecastCard(forecast, timezone) {
   var unixTz = forecast.dt;
   var icon = `https://openweathermap.org/img/w/${forecast.weather[0].icon}.png`;
@@ -211,14 +223,14 @@ function renderForecastCard(forecast, timezone) {
   forecastContainer.append(col);
 }
 
-//when the user clicks on the city in the history it needs to call the first function to populate the weather data. 
-
-function handleHistoryClick(e){
+//when the user clicks on the city in the history it needs to call the first function to populate the weather data.
+//after you click this function will get the button attributes
+function handleHistoryClick(e) {
   var btn = e.target;
-  var search = btn.getAttribute('data-search');
+  var search = btn.getAttribute("data-search");
   fetchCityCoords(search);
 }
-
+//this will add the history to the end of everything. the search function is called and the and the history search will appear after being clicked
 appendHistory();
 searchForm.addEventListener("submit", handleFormSubmit);
-searchHistoryContainer.addEventListener('click', handleHistoryClick);
+searchHistoryContainer.addEventListener("click", handleHistoryClick);
